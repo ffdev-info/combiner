@@ -115,6 +115,7 @@ async def split_xml(
     file_format_coll: xml.dom.minicompat.NodeList,
     identifiers: list,
     prefix: str,
+    start_index: int,
 ) -> list | list:
     """Return a separate internal signature collection and file format
     collection so that they can be recombined as a new document.
@@ -137,7 +138,7 @@ async def split_xml(
         pairings.append(pair)
     ret = []
     for pair in pairings:
-        idx = len(identifiers) + 1
+        idx = len(identifiers) + start_index
         identifiers.append(idx)
         pair.internal_signature.attributes["ID"] = f"{idx}"
         pair.file_format.attributes["ID"] = f"{idx}"
@@ -149,7 +150,7 @@ async def split_xml(
     return ret, identifiers
 
 
-async def process_paths(manifest: list, prefix: str):
+async def process_paths(manifest: list, prefix: str, start_index: int):
     """Process the paths given as XML and prepare them to be combined
     into one xml.
     """
@@ -168,7 +169,7 @@ async def process_paths(manifest: list, prefix: str):
                 )
                 file_format_coll = doc.getElementsByTagName("FileFormatCollection")
                 res, identifiers = await split_xml(
-                    internal_sig_coll, file_format_coll, identifiers, prefix
+                    internal_sig_coll, file_format_coll, identifiers, prefix, start_index,
                 )
                 if not res:
                     logger.error("cannot process: %s", item)
@@ -196,12 +197,12 @@ async def create_manifest(path: str) -> list[str]:
     return paths
 
 
-async def process_path(path: str, prefix: str):
+async def process_path(path: str, prefix: str, start_index: int):
     """Process the files at the given path."""
     logger.debug("processing files at: %s", path)
     # minidom.parseString()
     xml_paths = await create_manifest(path)
-    await process_paths(xml_paths, prefix)
+    await process_paths(xml_paths, prefix, start_index)
 
 
 def main() -> None:
@@ -226,6 +227,13 @@ def main() -> None:
         "--prefix", help="prefix for custom puids", required=False, default="ffdev"
     )
     parser.add_argument(
+        "--start-index",
+        help="integer from which to start the singature index (for DROID copy-paste)",
+        required=False,
+        type=int,
+        default=1,
+    )
+    parser.add_argument(
         "--version",
         help="print version information",
         required=False,
@@ -244,6 +252,7 @@ def main() -> None:
         process_path(
             path=args.path,
             prefix=args.prefix,
+            start_index=args.start_index,
         )
     )
 
