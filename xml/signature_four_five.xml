@@ -4,7 +4,7 @@
   <InternalSignature ID="1" Specificity="Specific">
   <ByteSequence Reference="BOFoffset">
     <SubSequence MinFragLength="0" Position="1" SubSeqMaxOffset="0" SubSeqMinOffset="0">
-      <Sequence>S0F11301</Sequence>
+      <Sequence>S0F11304</Sequence>
       <DefaultShift>5</DefaultShift>
       <Shift Byte="S0">4</Shift>
       <Shift Byte="F1">3</Shift>
@@ -14,7 +14,7 @@
   </ByteSequence>
   <ByteSequence Reference="EOFoffset">
     <SubSequence MinFragLength="0" Position="1" SubSeqMaxOffset="0" SubSeqMinOffset="0">
-      <Sequence>E0F11301</Sequence>
+      <Sequence>E0F11304</Sequence>
       <DefaultShift>-5</DefaultShift>
       <Shift Byte="E0">-1</Shift>
       <Shift Byte="F1">-2</Shift>
@@ -26,7 +26,7 @@
   <InternalSignature ID="2" Specificity="Specific">
   <ByteSequence Reference="BOFoffset">
     <SubSequence MinFragLength="0" Position="1" SubSeqMaxOffset="0" SubSeqMinOffset="0">
-      <Sequence>S0F11301</Sequence>
+      <Sequence>S0F11305</Sequence>
       <DefaultShift>5</DefaultShift>
       <Shift Byte="S0">4</Shift>
       <Shift Byte="F1">3</Shift>
@@ -36,7 +36,7 @@
   </ByteSequence>
   <ByteSequence Reference="EOFoffset">
     <SubSequence MinFragLength="0" Position="1" SubSeqMaxOffset="0" SubSeqMinOffset="0">
-      <Sequence>E0F11301</Sequence>
+      <Sequence>E0F11305</Sequence>
       <DefaultShift>-5</DefaultShift>
       <Shift Byte="E0">-1</Shift>
       <Shift Byte="F1">-2</Shift>
@@ -47,12 +47,12 @@
 </InternalSignature>
 </InternalSignatureCollection>
 <FileFormatCollection>
-  <FileFormat ID="1" Name="signature_one" PUID="dev/1" Version="1.0" MIMEType="application/octet-stream">
+  <FileFormat ID="1" Name="signature_one" PUID="dev/5" Version="1.0" MIMEType="application/octet-stream">
     <InternalSignatureID>2</InternalSignatureID>
-    <Extension>ex2</Extension>
+    <Extension>ex5</Extension>
   </FileFormat>
-  <FileFormat ID="2" Name="signature_one" PUID="dev/1" Version="1.0" MIMEType="application/octet-stream">
+  <FileFormat ID="2" Name="signature_one" PUID="dev/4" Version="1.0" MIMEType="application/octet-stream">
     <InternalSignatureID>1</InternalSignatureID>
-    <Extension>ex1</Extension>
+    <Extension>ex4</Extension>
   </FileFormat>
 </FileFormatCollection></FFSignatureFile>
