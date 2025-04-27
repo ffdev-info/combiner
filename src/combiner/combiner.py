@@ -110,6 +110,7 @@ async def get_matches(node_list: xml.dom.minicompat.NodeList, identifier: str) -
     return ids
 
 
+# pylint: disable=R0914
 async def split_xml(
     internal_sig_coll: xml.dom.minicompat.NodeList,
     file_format_coll: xml.dom.minicompat.NodeList,
@@ -169,7 +170,11 @@ async def process_paths(manifest: list, prefix: str, start_index: int):
                 )
                 file_format_coll = doc.getElementsByTagName("FileFormatCollection")
                 res, identifiers = await split_xml(
-                    internal_sig_coll, file_format_coll, identifiers, prefix, start_index,
+                    internal_sig_coll,
+                    file_format_coll,
+                    identifiers,
+                    prefix,
+                    start_index,
                 )
                 if not res:
                     logger.error("cannot process: %s", item)
@@ -228,7 +233,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--start-index",
-        help="integer from which to start the singature index (for DROID copy-paste)",
+        help="integer from which to start the signature index (for DROID copy-paste)",
         required=False,
         type=int,
         default=1,
