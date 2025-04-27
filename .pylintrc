@@ -24,6 +24,9 @@ ignore-patterns=
     ^(.+).html,
     ^(.+).png,
     ^(.+).xml,
+    ^(.+).ex1,
+    ^(.+).ex2,
+    ^(.+).ex3,
     ^\.,
 
 ignore-paths=
