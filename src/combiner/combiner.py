@@ -95,36 +95,21 @@ async def create_new_sig_file(sigs: list):
 async def split_xml(
     internal_sig_coll: xml.dom.minicompat.NodeList,
     file_format_coll: xml.dom.minicompat.NodeList,
-    idx: int,
+    identifiers: list,
     prefix: str,
 ):
     """Return a separate internal signature collection and file format
     collection so that they can be recombined as a new document.
     """
+    idx = len(identifiers) + 1
+    identifiers.append(idx)
     ins = internal_sig_coll[0].getElementsByTagName("InternalSignature")[0]
     ff = file_format_coll[0].getElementsByTagName("FileFormat")[0]
     ins.attributes["ID"] = f"{idx}"
     ff.attributes["ID"] = f"{idx}"
     ff.attributes["PUID"] = f"{prefix}/{idx}"
     ff.getElementsByTagName("InternalSignatureID")[0].firstChild.nodeValue = idx
-    return (ins, ff)
-
-
-async def check_items(
-    internal_sig_coll: xml.dom.minicompat.NodeList,
-    file_format_coll: xml.dom.minicompat.NodeList,
-):
-    """Make sure we're working specifically with an ffdev.info output,
-    i.e. it only has one internal signature collection and one
-    file format collection.
-    """
-    try:
-        bs_len = len(internal_sig_coll[0].getElementsByTagName("InternalSignature"))
-        assert bs_len == 1, f"internal signatures should be one, got: {bs_len}"
-        ff_len = len(file_format_coll[0].getElementsByTagName("FileFormat"))
-        assert ff_len == 1, f"byte sequences should be 1, got: {ff_len}"
-    except TypeError:
-        assert False, "cannot process collections"
+    return (ins, ff), identifiers
 
 
 async def process_paths(manifest: list, prefix: str):
@@ -143,14 +128,9 @@ async def process_paths(manifest: list, prefix: str):
                     "InternalSignatureCollection"
                 )
                 file_format_coll = doc.getElementsByTagName("FileFormatCollection")
-                try:
-                    await check_items(internal_sig_coll, file_format_coll)
-                except AssertionError as err:
-                    logger.error("cannot process: %s ('%s')", item, err)
-                    continue
-                idx = len(identifiers) + 1
-                identifiers.append(idx)
-                res = await split_xml(internal_sig_coll, file_format_coll, idx, prefix)
+                res, identifiers = await split_xml(
+                    internal_sig_coll, file_format_coll, identifiers, prefix
+                )
                 sig_list.append(res)
             except xml.parsers.expat.ExpatError:
                 logger.error("cannot process: %s", item)
