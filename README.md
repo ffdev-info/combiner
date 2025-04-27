@@ -9,6 +9,31 @@ prefix using `--prefix` so that PUIDs are recognizable in your workflow.
 
 [ffdev-1]: https://ffdev.info
 
+## CLI options
+
+For more information run `python combiner.py --help`.
+
+<!--markdownlint-disable-->
+
+```text
+usage: combiner [-h] [--debug] [--path PATH] [--prefix PREFIX] [--start-index START_INDEX] [--version]
+
+combine development signature files into one
+
+options:
+  -h, --help            show this help message and exit
+  --debug               use debug loggng
+  --path PATH           directory where the signature files are
+  --prefix PREFIX       prefix for custom puids
+  --start-index START_INDEX
+                        integer from which to start the signature index (for DROID copy-paste)
+  --version             print version information
+
+for more information visit https://github.com/ffdev-info/combiner
+```
+
+<!--markdownlint-enable-->
+
 ## Developer install
 
 ### pip
