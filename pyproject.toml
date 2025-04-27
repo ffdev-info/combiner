@@ -1,0 +1,46 @@
+[project]
+
+name = "combiner"
+dynamic = ["version", "dependencies"]
+
+description = "an ffdev.info signature file combiner tool"
+
+readme = "README.md"
+
+requires-python = ">=3.11"
+
+license-files = [ "LICENSE" ]
+
+keywords = ["pronom", "digipres", "file-formats"]
+
+authors = [
+  {name = "R. Spencer", email = "all.along.the.watchtower2001+github@gmail.com" },
+]
+
+maintainers = [
+  {name = "R. Spencer", email = "all.along.the.watchtower2001+github@gmail.com" }
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements/requirements.txt"]}
+
+[project.urls]
+"Homepage" = "https://github.com/ffdev-info/combiner"
+"Bug Reports" = "https://github.com/ffdev-info/combiner/issues/"
+"Source" = "https://github.com/ffdev-info/combiner/sourcecode/"
+
+[project.scripts]
+combiner = "combiner.combiner:main"
+
+[build-system]
+requires = ["setuptools>=74.0.0", "wheel>=0.44.0", "setuptools_scm[toml]>=8.1.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
