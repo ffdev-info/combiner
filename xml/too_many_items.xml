@@ -48,11 +48,11 @@
 </InternalSignatureCollection>
 <FileFormatCollection>
   <FileFormat ID="1" Name="signature_one" PUID="dev/1" Version="1.0" MIMEType="application/octet-stream">
-    <InternalSignatureID>1</InternalSignatureID>
-    <Extension>ex1</Extension>
+    <InternalSignatureID>2</InternalSignatureID>
+    <Extension>ex2</Extension>
   </FileFormat>
   <FileFormat ID="2" Name="signature_one" PUID="dev/1" Version="1.0" MIMEType="application/octet-stream">
-    <InternalSignatureID>2</InternalSignatureID>
+    <InternalSignatureID>1</InternalSignatureID>
     <Extension>ex1</Extension>
   </FileFormat>
 </FileFormatCollection></FFSignatureFile>
