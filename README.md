@@ -3,6 +3,10 @@
 Combiner is a small utility to combine [ffdev.info][ffdev-1] signature files
 into one signature file for bulk testing.
 
+The application makes sure that identifiers are unique and align for all
+input xml. It also makes sure that PUIDs are unique. You can use an optional
+prefix using `--prefix` so that PUIDs are recognizable in your workflow.
+
 [ffdev-1]: https://ffdev.info
 
 ## Developer install
