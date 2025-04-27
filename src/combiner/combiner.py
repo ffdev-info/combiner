@@ -4,6 +4,8 @@ import argparse
 import asyncio
 import logging
 import sys
+import time
+from typing import Final
 
 try:
     import version
@@ -11,7 +13,7 @@ except ModuleNotFoundError:
     try:
         from src.combiner import version
     except ModuleNotFoundError:
-        from combiner import version
+        pass
 
 
 # Set up logging.
@@ -30,9 +32,12 @@ logging.Formatter.converter = time.gmtime
 
 logger = logging.getLogger(__name__)
 
+APPNAME: Final[str] = "combiner"
+
 
 async def process_path(path: str):
     """Process the files at the given path."""
+    logger.debug("processing files at: %s", path)
 
 
 def main() -> None:
@@ -53,9 +58,18 @@ def main() -> None:
         help="directory where the signature files are",
         required=False,
     )
+    parser.add_argument(
+        "--version",
+        help="print version information",
+        required=False,
+        action="store_true",
+    )
     args = parser.parse_args()
     logging.getLogger(__name__).setLevel(logging.DEBUG if args.debug else logging.INFO)
     logger.debug("debug logging is configured")
+    if args.version:
+        print(f"{APPNAME}: {version.get_version()}")
+        sys.exit()
     if not args.path:
         parser.print_help(sys.stderr)
         sys.exit()
