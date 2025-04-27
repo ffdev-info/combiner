@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import xml
+from dataclasses import dataclass
 from datetime import timezone
 from typing import Final
 from xml.dom import minidom
@@ -41,6 +42,12 @@ UTC_TIME_FORMAT: Final[str] = "%Y-%m-%dT%H:%M:%SZ"
 APPNAME: Final[str] = "combiner"
 
 
+@dataclass
+class SignatureFormatPairing:
+    internal_signature: xml.dom.minidom.Element
+    file_format: xml.dom.minidom.Element
+
+
 def new_prettify(dom_str):
     """Remove excess newlines from DOM output.
 
@@ -67,7 +74,7 @@ async def create_new_sig_file(sigs: list):
     """Create a new signature file based on the information we have
     processed.
     """
-    logger.info("processing: '%s' sigs", len(sigs))
+    logger.info("processing: '%s' items for a signature file", len(sigs))
     internal_sigs = [item[0] for item in sigs]
     file_formats = [item[1] for item in sigs]
     root = minidom.Document()
@@ -92,24 +99,67 @@ async def create_new_sig_file(sigs: list):
     print(new_prettify(pretty_xml))
 
 
+async def get_matches(node_list: xml.dom.minicompat.NodeList, identifier: str) -> list:
+    """Return element matches for a given identifier"""
+    ids = []
+    for item in node_list:
+        value = item.getElementsByTagName("InternalSignatureID")[0].firstChild.nodeValue
+        if value != identifier:
+            continue
+        ids.append(item)
+    return ids
+
+
 async def split_xml(
     internal_sig_coll: xml.dom.minicompat.NodeList,
     file_format_coll: xml.dom.minicompat.NodeList,
     identifiers: list,
     prefix: str,
-):
+) -> list | list:
     """Return a separate internal signature collection and file format
     collection so that they can be recombined as a new document.
     """
-    idx = len(identifiers) + 1
-    identifiers.append(idx)
-    ins = internal_sig_coll[0].getElementsByTagName("InternalSignature")[0]
-    ff = file_format_coll[0].getElementsByTagName("FileFormat")[0]
-    ins.attributes["ID"] = f"{idx}"
-    ff.attributes["ID"] = f"{idx}"
-    ff.attributes["PUID"] = f"{prefix}/{idx}"
-    ff.getElementsByTagName("InternalSignatureID")[0].firstChild.nodeValue = idx
-    return (ins, ff), identifiers
+
+    bs_len = len(internal_sig_coll[0].getElementsByTagName("InternalSignature"))
+    ff_len = len(file_format_coll[0].getElementsByTagName("FileFormat"))
+
+    if bs_len == 1 and ff_len == 1:
+        idx = len(identifiers) + 1
+        identifiers.append(idx)
+        ins = internal_sig_coll[0].getElementsByTagName("InternalSignature")[0]
+        ff = file_format_coll[0].getElementsByTagName("FileFormat")[0]
+        ins.attributes["ID"] = f"{idx}"
+        ff.attributes["ID"] = f"{idx}"
+        ff.attributes["PUID"] = f"{prefix}/{idx}"
+        ff.getElementsByTagName("InternalSignatureID")[0].firstChild.nodeValue = idx
+        return [(ins, ff)], identifiers
+
+    # check determines the amount of complexity we're willing and
+    # able to handle. Based on Lepore, this assert doesn't fail which
+    # isn't a bad baseline.
+    if bs_len != ff_len:
+        return None, []
+    internal_signatures = internal_sig_coll[0].getElementsByTagName("InternalSignature")
+    file_formats = file_format_coll[0].getElementsByTagName("FileFormat")
+    pairings = []
+    for item in internal_signatures:
+        id_value = item.attributes["ID"].value
+        matches = await get_matches(file_formats, id_value)
+        assert len(matches) == 1
+        pair = SignatureFormatPairing(item, matches[0])
+        pairings.append(pair)
+    ret = []
+    for pair in pairings:
+        idx = len(identifiers) + 1
+        identifiers.append(idx)
+        pair.internal_signature.attributes["ID"] = f"{idx}"
+        pair.file_format.attributes["ID"] = f"{idx}"
+        pair.file_format.attributes["PUID"] = f"{prefix}/{idx}"
+        pair.file_format.getElementsByTagName("InternalSignatureID")[
+            0
+        ].firstChild.nodeValue = idx
+        ret.append((pair.internal_signature, pair.file_format))
+    return ret, identifiers
 
 
 async def process_paths(manifest: list, prefix: str):
@@ -118,7 +168,9 @@ async def process_paths(manifest: list, prefix: str):
     """
     sig_list = []
     identifiers = []
-    for item in manifest:
+    processed = []
+    manifest.sort()
+    for idx, item in enumerate(manifest):
         with open(item, "r", encoding="utf8") as xml_file:
             try:
                 doc = minidom.parseString(xml_file.read())
@@ -131,12 +183,18 @@ async def process_paths(manifest: list, prefix: str):
                 res, identifiers = await split_xml(
                     internal_sig_coll, file_format_coll, identifiers, prefix
                 )
-                sig_list.append(res)
+                if not res:
+                    logger.error("cannot process: %s", item)
+                    continue
+                for pair in res:
+                    sig_list.append(pair)
+                processed.append(idx)
             except xml.parsers.expat.ExpatError:
                 logger.error("cannot process: %s", item)
     if len(sig_list) == 0:
         logger.info("no signature files were processed")
         return
+    logger.info("processed '%s' files", len(processed))
     await create_new_sig_file(sig_list)
 
 
