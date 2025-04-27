@@ -119,28 +119,15 @@ async def split_xml(
     """Return a separate internal signature collection and file format
     collection so that they can be recombined as a new document.
     """
-
-    bs_len = len(internal_sig_coll[0].getElementsByTagName("InternalSignature"))
-    ff_len = len(file_format_coll[0].getElementsByTagName("FileFormat"))
-
-    if bs_len == 1 and ff_len == 1:
-        idx = len(identifiers) + 1
-        identifiers.append(idx)
-        ins = internal_sig_coll[0].getElementsByTagName("InternalSignature")[0]
-        ff = file_format_coll[0].getElementsByTagName("FileFormat")[0]
-        ins.attributes["ID"] = f"{idx}"
-        ff.attributes["ID"] = f"{idx}"
-        ff.attributes["PUID"] = f"{prefix}/{idx}"
-        ff.getElementsByTagName("InternalSignatureID")[0].firstChild.nodeValue = idx
-        return [(ins, ff)], identifiers
-
+    internal_signatures = internal_sig_coll[0].getElementsByTagName("InternalSignature")
+    file_formats = file_format_coll[0].getElementsByTagName("FileFormat")
+    bs_len = len(internal_signatures)
+    ff_len = len(file_formats)
     # check determines the amount of complexity we're willing and
     # able to handle. Based on Lepore, this assert doesn't fail which
     # isn't a bad baseline.
     if bs_len != ff_len:
         return None, []
-    internal_signatures = internal_sig_coll[0].getElementsByTagName("InternalSignature")
-    file_formats = file_format_coll[0].getElementsByTagName("FileFormat")
     pairings = []
     for item in internal_signatures:
         id_value = item.attributes["ID"].value
